@@ -2,210 +2,315 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>JARVIS Console</title>
+<title>J.A.R.V.I.S. HUD</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
+/* ================= COLORS ================= */
+:root {
+    --blue: #0ea5e9;
+    --cyan: #22d3ee;
+    --glow: rgba(56,189,248,.75);
+}
+
+/* ================= BASE ================= */
 html, body {
-    height: 100%;
-    width: 100%;
     margin: 0;
-    padding: 0;
-    background: radial-gradient(circle at center, #0b0f14 0%, #020617 100%);
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, #0b0f14 0%, #020617 75%);
+    font-family: "Segoe UI", system-ui;
     color: #e6edf3;
     overflow: hidden;
-    position: relative;
-    font-family: "Segoe UI", system-ui, sans-serif;
 }
 
-/* HUD круги */
-.hud-circle {
+body::after {
+    content: "";
     position: absolute;
-    border: 1px solid rgba(14, 165, 233, 0.3);
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(255,255,255,.02) 0px,
+        rgba(255,255,255,.02) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+    pointer-events: none;
+}
+
+/* ================= HUD RINGS ================= */
+.hud-ring {
+    position: absolute;
     border-radius: 50%;
-    animation: rotateCircle linear infinite;
-    background: transparent;
-}
-.hud-circle.small { width: 120px; height: 120px; top: 10%; left: 20%; animation-duration: 25s; }
-.hud-circle.medium { width: 250px; height: 250px; top: 35%; left: 65%; animation-duration: 40s; }
-.hud-circle.large { width: 450px; height: 450px; top: 50%; left: 50%; transform: translate(-50%, -50%); animation-duration: 60s; }
-
-@keyframes rotateCircle {
-    0% { transform: translate(-50%, -50%) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
-/* HUD панели */
+.hud-ring.big {
+    width: 520px;
+    height: 520px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.hud-ring.left {
+    width: 240px;
+    height: 240px;
+    top: 18%;
+    left: 12%;
+}
+
+.hud-ring.right {
+    width: 300px;
+    height: 300px;
+    bottom: 12%;
+    right: 6%;
+}
+
+.ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    animation: spin linear infinite;
+}
+
+/* segmented outer ring */
+.ring.outer {
+    background: conic-gradient(
+        var(--cyan) 0deg 20deg,
+        transparent 20deg 30deg,
+        var(--cyan) 30deg 60deg,
+        transparent 60deg 80deg,
+        var(--cyan) 80deg 120deg,
+        transparent 120deg 160deg,
+        var(--cyan) 160deg 200deg,
+        transparent 200deg 360deg
+    );
+    mask: radial-gradient(circle, transparent 62%, black 63%);
+    filter: drop-shadow(0 0 18px var(--glow));
+    animation-duration: 60s;
+}
+
+/* dashed tech ring */
+.ring.middle {
+    inset: 12%;
+    border: 2px dashed rgba(56,189,248,.6);
+    animation-duration: 40s;
+}
+
+/* inner glow ring */
+.ring.inner {
+    inset: 26%;
+    border: 2px solid rgba(56,189,248,.85);
+    box-shadow: 0 0 14px rgba(56,189,248,.6);
+    animation-duration: 25s;
+    animation-direction: reverse;
+}
+
+/* arc reactor */
+.ring.core {
+    inset: 42%;
+    background: radial-gradient(circle,
+        rgba(56,189,248,1) 0%,
+        rgba(56,189,248,.6) 40%,
+        transparent 70%
+    );
+    box-shadow:
+        0 0 28px rgba(56,189,248,.9),
+        inset 0 0 12px rgba(255,255,255,.4);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    0%,100% { transform: scale(1); opacity: .85; }
+    50% { transform: scale(1.1); opacity: 1; }
+}
+
+/* ================= HUD PANELS ================= */
 .hud-panel {
     position: absolute;
     padding: 10px 14px;
     font-size: 12px;
-    color: #0ea5e9;
+    border: 1px solid rgba(56,189,248,.4);
     border-radius: 10px;
-    border: 1px solid rgba(14,165,233,0.2);
-    box-shadow: 0 0 15px rgba(14,165,233,0.2);
-    backdrop-filter: blur(4px);
-    text-shadow: 0 0 3px #0ea5e9;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 0 18px rgba(56,189,248,.35);
+    color: var(--cyan);
 }
+
 .top-left { top: 20px; left: 20px; }
 .top-right { top: 20px; right: 20px; }
 .bottom-left { bottom: 20px; left: 20px; }
 .bottom-right { bottom: 20px; right: 20px; }
 
-/* Центральный чат */
+/* ================= CHAT ================= */
 .chat-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     width: 420px;
     height: 600px;
-    background: rgba(17, 24, 39, 0.85);
-    border-radius: 20px;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 0 40px rgba(14, 165, 233, 0.5);
-    overflow: hidden;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    border: 1px solid rgba(14, 165, 233, 0.5);
-    backdrop-filter: blur(8px);
+    background: linear-gradient(180deg, rgba(56,189,248,.15), rgba(2,6,23,.9));
+    border-radius: 22px;
+    border: 1px solid rgba(56,189,248,.6);
+    box-shadow:
+        0 0 50px rgba(56,189,248,.7),
+        inset 0 0 20px rgba(56,189,248,.25);
 }
 
 .header {
     padding: 14px;
     text-align: center;
     font-weight: bold;
-    letter-spacing: 2px;
-    background: linear-gradient(90deg, #0ea5e9, #22d3ee);
+    letter-spacing: 3px;
+    background: linear-gradient(90deg, var(--blue), var(--cyan));
     color: #020617;
-    font-size: 20px;
-    text-shadow: 0 0 8px #22d3ee;
 }
 
 .messages {
     flex: 1;
     padding: 12px;
     overflow-y: auto;
-    font-size: 14px;
 }
 
 .message {
     margin-bottom: 12px;
     padding: 12px 16px;
-    border-radius: 12px;
+    border-radius: 14px;
     max-width: 80%;
-    white-space: pre-wrap;
-    line-height: 1.5;
-    box-shadow: 0 0 12px rgba(14, 165, 233, 0.3);
-    animation: fadeIn 0.5s ease-in;
 }
 
-.user { background: rgba(31, 41, 55, 0.8); align-self: flex-end; border-left: 2px solid #0ea5e9; }
-.jarvis { background: rgba(2, 6, 23, 0.8); border: 1px solid #0ea5e9; align-self: flex-start; }
+.user {
+    align-self: flex-end;
+    background: rgba(31,41,55,.9);
+    border-left: 2px solid var(--blue);
+}
 
-.input-area { display: flex; border-top: 1px solid rgba(31, 41, 55, 0.6); }
+.jarvis {
+    align-self: flex-start;
+    background: rgba(2,6,23,.75);
+    border: 1px solid var(--blue);
+    text-shadow: 0 0 6px rgba(56,189,248,.6);
+}
+
+.input-area {
+    display: flex;
+    border-top: 1px solid rgba(56,189,248,.3);
+}
+
 input {
     flex: 1;
     padding: 14px;
+    background: transparent;
     border: none;
+    color: #fff;
     outline: none;
-    background: rgba(2, 6, 23, 0.8);
-    color: #e6edf3;
-    font-size: 14px;
-    text-shadow: 0 0 2px #0ea5e9;
 }
 
 button {
-    background: #0ea5e9;
+    padding: 0 20px;
+    background: var(--blue);
     border: none;
-    padding: 0 18px;
     cursor: pointer;
-    font-weight: bold;
-    color: #020617;
-    transition: 0.2s;
 }
-button:hover { background: #22d3ee; box-shadow: 0 0 12px #22d3ee; }
 
-.thinking { opacity: 0.6; font-style: italic; animation: pulse 1s infinite; }
-@keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-/* Панели Последние ответы и Статус системы */
+/* ================= SIDE PANELS ================= */
 .system-panel {
     position: absolute;
     top: 100px;
+    width: 260px;
     padding: 12px;
-    font-size: 12px;
-    color: #0ea5e9;
+    border: 1px solid rgba(56,189,248,.3);
     border-radius: 10px;
-    border: 1px solid rgba(14,165,233,0.3);
-    box-shadow: 0 0 20px rgba(14,165,233,0.2);
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 0 20px rgba(56,189,248,.25);
+    font-size: 12px;
 }
 
 .left-panel { left: 24px; }
 .right-panel { right: 24px; }
 
-.panel-title { font-weight: bold; margin-bottom: 8px; text-shadow: 0 0 4px #0ea5e9; }
-.panel-item { margin-bottom: 6px; }
-
-/* Последние ответы */
-#lastResponse {
-    color: #22d3ee;
-    max-width: 300px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+.panel-title {
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: var(--cyan);
 }
 
 .last-response-item {
     padding: 4px 6px;
-    border-left: 2px solid #0ea5e9;
-    background: rgba(2, 6, 23, 0.3);
-    border-radius: 4px;
-    font-size: 12px;
-    line-height: 1.3;
+    margin-bottom: 6px;
+    border-left: 2px solid var(--blue);
+    background: rgba(2,6,23,.4);
 }
 
-/* Статус API */
+/* ================= API STATUS ================= */
 .status-dot {
-    display: inline-block;
     width: 10px;
     height: 10px;
     border-radius: 50%;
+    display: inline-block;
     margin-right: 6px;
-    background-color: red; /* по умолчанию недоступен */
 }
-.status-dot.online { background-color: #0ea5e9; }
-.status-dot.offline { background-color: red; }
+.online {
+    background: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan);
+}
+.offline {
+    background: red;
+}
 </style>
 </head>
+
 <body>
 
-<!-- HUD круги -->
-<div class="hud-circle small"></div>
-<div class="hud-circle medium"></div>
-<div class="hud-circle large"></div>
-
-<!-- HUD панели времени и погоды -->
-<div class="hud-panel top-left" id="timePanel">00:00</div>
-<div class="hud-panel top-right" id="datePanel">01 Января</div>
-<div class="hud-panel bottom-left" id="weatherPanel">Темп: — °C</div>
-<div class="hud-panel bottom-right" id="geoPanel">Локация: —</div>
-
-<!-- Панели Последние ответы и Статус системы -->
-<div class="system-panel left-panel">
-    <div class="panel-title">Последние ответы</div>
-    <div id="lastResponse">—</div>
+<!-- HUD RINGS -->
+<div class="hud-ring big">
+    <div class="ring outer"></div>
+    <div class="ring middle"></div>
+    <div class="ring inner"></div>
+    <div class="ring core"></div>
 </div>
 
+<div class="hud-ring left">
+    <div class="ring outer"></div>
+    <div class="ring inner"></div>
+</div>
+
+<div class="hud-ring right">
+    <div class="ring outer"></div>
+    <div class="ring middle"></div>
+</div>
+
+<!-- HUD INFO -->
+<div class="hud-panel top-left" id="timePanel"></div>
+<div class="hud-panel top-right" id="datePanel"></div>
+<div class="hud-panel bottom-left" id="weatherPanel">Темп: —</div>
+<div class="hud-panel bottom-right" id="geoPanel">Локация: —</div>
+
+<!-- LEFT PANEL -->
+<div class="system-panel left-panel">
+    <div class="panel-title">Последние ответы</div>
+    <div id="lastResponses"></div>
+</div>
+
+<!-- RIGHT PANEL -->
 <div class="system-panel right-panel">
     <div class="panel-title">Статус системы</div>
-    <div class="panel-item">Порты: 8000 / 5500</div>
-    <div class="panel-item">Сессия: активна</div>
-    <div class="panel-item" id="apiStatus">
-        <span class="status-dot offline" id="apiDot"></span> API недоступен
+    <div>Порты: 8000 / 5500</div>
+    <div>Сессия: активна</div>
+    <div id="apiStatus">
+        <span class="status-dot offline"></span> API недоступен
     </div>
 </div>
 
+<!-- CHAT -->
 <div class="chat-container">
     <div class="header">J.A.R.V.I.S.</div>
     <div class="messages" id="messages"></div>
@@ -217,47 +322,37 @@ button:hover { background: #22d3ee; box-shadow: 0 0 12px #22d3ee; }
 
 <script>
 const API_URL = "http://127.0.0.1:8000/requests";
+
 const messagesEl = document.getElementById("messages");
 const inputEl = document.getElementById("promptInput");
-const timePanel = document.getElementById("timePanel");
-const datePanel = document.getElementById("datePanel");
-const weatherPanel = document.getElementById("weatherPanel");
-const geoPanel = document.getElementById("geoPanel");
-const lastRespEl = document.getElementById("lastResponse");
-const apiDot = document.getElementById("apiDot");
-const apiStatusText = document.getElementById("apiStatus");
+const lastRespEl = document.getElementById("lastResponses");
+const apiStatusEl = document.getElementById("apiStatus");
 
-const lastResponses = []; // массив последних ответов
+let lastResponses = [];
 
-// Добавление сообщений
-function addMessage(text, sender){
+/* messages */
+function addMessage(text, sender) {
     const div = document.createElement("div");
     div.className = `message ${sender}`;
     div.textContent = text;
     messagesEl.appendChild(div);
     messagesEl.scrollTop = messagesEl.scrollHeight;
-
-    if(sender === "jarvis") {
-        lastResponses.push(text);
-        if(lastResponses.length > 5) lastResponses.shift(); // последние 5
-
-        lastRespEl.innerHTML = ""; // очистка панели
-        lastResponses.forEach(resp => {
-            const item = document.createElement("div");
-            item.className = "last-response-item";
-            item.textContent = truncateText(resp, 80);
-            lastRespEl.appendChild(item);
-        });
-    }
     return div;
 }
 
-function truncateText(text,length=80){
-    if(text.length <= length) return text;
-    return text.slice(0,length) + "...";
+function updateLastResponses(text) {
+    lastResponses.push(text);
+    if (lastResponses.length > 5) lastResponses.shift();
+    lastRespEl.innerHTML = "";
+    lastResponses.forEach(r => {
+        const d = document.createElement("div");
+        d.className = "last-response-item";
+        d.textContent = r.slice(0, 100);
+        lastRespEl.appendChild(d);
+    });
 }
 
-// Загрузка истории
+/* history */
 async function loadHistory() {
     try {
         const res = await fetch(API_URL);
@@ -265,85 +360,77 @@ async function loadHistory() {
         data.forEach(item => {
             addMessage(item.prompt, "user");
             addMessage(item.response, "jarvis");
+            updateLastResponses(item.response);
         });
-    } catch (e) {
-        console.error("История не загружена", e);
+    } catch {}
+}
+
+/* api status */
+async function checkApiStatus() {
+    try {
+        await fetch(API_URL);
+        apiStatusEl.innerHTML = `<span class="status-dot online"></span> API доступен`;
+    } catch {
+        apiStatusEl.innerHTML = `<span class="status-dot offline"></span> API недоступен`;
     }
 }
 
-// Время и дата
-function updateTime(){
-    const now = new Date();
-    const options = { month: 'long', day: 'numeric' };
-    timePanel.textContent = now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
-    datePanel.textContent = now.toLocaleDateString('ru-RU', options);
-}
-setInterval(updateTime,1000);
-updateTime();
-
-// Геолокация и погода
-if(navigator.geolocation){
-    navigator.geolocation.getCurrentPosition(pos=>{
-        geoPanel.textContent = `Локация: ${pos.coords.latitude.toFixed(2)}, ${pos.coords.longitude.toFixed(2)}`;
-        fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&current_weather=true`)
-            .then(res=>res.json())
-            .then(data=>{
-                weatherPanel.textContent = `Темп: ${data.current_weather.temperature}°C`;
-            })
-            .catch(()=>weatherPanel.textContent="Темп: — °C");
-    },()=>{geoPanel.textContent="Локация: недоступна";});
-}else{geoPanel.textContent="Локация: недоступна";}
-
-// Отправка запроса
-async function sendPrompt(){
+/* send */
+async function sendPrompt() {
     const prompt = inputEl.value.trim();
-    if(!prompt) return;
-
+    if (!prompt) return;
     inputEl.value = "";
+
     addMessage(prompt, "user");
-    const thinkingMsg = addMessage("Думаю, сэр...", "jarvis");
-    thinkingMsg.classList.add("thinking");
+    const thinkingMsg = addMessage("Думаю, сэр…", "jarvis");
 
     try {
-        const res = await fetch(API_URL,{
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({prompt})
+        const res = await fetch(API_URL, {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({ prompt })
         });
         const data = await res.json();
         thinkingMsg.textContent = data.answer;
-        thinkingMsg.classList.remove("thinking");
-    } catch(e){
-        thinkingMsg.textContent="Ошибка соединения с ядром JARVIS.";
+        updateLastResponses(data.answer);
+        checkApiStatus();
+    } catch {
+        thinkingMsg.textContent = "Ошибка ядра JARVIS.";
+        checkApiStatus();
     }
 }
 
-// Проверка статуса API
-async function checkAPIStatus() {
-    try {
-        const res = await fetch(API_URL, { method: "GET" });
-        if(res.ok){
-            apiDot.classList.remove("offline");
-            apiDot.classList.add("online");
-            apiStatusText.innerHTML = `<span class="status-dot online"></span> API доступен`;
-        } else {
-            apiDot.classList.remove("online");
-            apiDot.classList.add("offline");
-            apiStatusText.innerHTML = `<span class="status-dot offline"></span> API недоступен`;
-        }
-    } catch(e){
-        apiDot.classList.remove("online");
-        apiDot.classList.add("offline");
-        apiStatusText.innerHTML = `<span class="status-dot offline"></span> API недоступен`;
-    }
+/* time */
+function updateTime() {
+    const now = new Date();
+    timePanel.textContent = now.toLocaleTimeString("ru-RU", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+    });
+    datePanel.textContent = now.toLocaleDateString("ru-RU", {
+        month: "long",
+        day: "numeric"
+    });
 }
-checkAPIStatus();
-setInterval(checkAPIStatus, 5000);
+setInterval(updateTime, 1000);
+updateTime();
 
-// Загрузка истории при старте
+/* geo + weather */
+navigator.geolocation?.getCurrentPosition(pos=>{
+    const {latitude, longitude} = pos.coords;
+    geoPanel.textContent = `Lat ${latitude.toFixed(2)}, Lon ${longitude.toFixed(2)}`;
+
+    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`)
+        .then(r=>r.json())
+        .then(d=>{
+            weatherPanel.textContent = `Темп: ${d.current_weather.temperature}°C`;
+        });
+});
+
+/* init */
 loadHistory();
-
-inputEl.addEventListener("keydown",e=>{if(e.key==="Enter") sendPrompt();});
+checkApiStatus();
 </script>
 
 </body>
