@@ -1,10 +1,11 @@
 from fastapi import Body, Request, APIRouter
 from fastapi.encoders import jsonable_encoder
 
-from gemini_client import get_answer_from_gemini
+from src.ai.ai_client import AIClient
 from src.db import get_user_requests, add_request_data
 
 router = APIRouter()
+ai = AIClient()
 
 
 @router.get("/requests")
@@ -21,7 +22,7 @@ def send_prompt(
         prompt: str = Body(embed=True),
 ):
     user_ip_address = request.client.host
-    answer = get_answer_from_gemini(prompt)
+    answer = ai.ask(prompt)
     add_request_data(
         ip_address=user_ip_address,
         prompt=prompt,
