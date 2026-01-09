@@ -1,3 +1,4 @@
+from http import HTTPStatus
 from typing import List
 
 from google import genai
@@ -56,7 +57,7 @@ class AIClient:
 
             return answer
         except ClientError as e:
-            if e.status == 429:
+            if e.status == HTTPStatus.TOO_MANY_REQUESTS:
                 return (
                     "⚠️ Сэр, лимит запросов временно исчерпан.\n"
                     "Рекомендую подождать или переключиться на резервный интеллект."
