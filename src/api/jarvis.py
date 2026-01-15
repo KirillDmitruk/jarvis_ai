@@ -22,10 +22,10 @@ def send_prompt(
         prompt: str = Body(embed=True),
 ):
     user_ip_address = request.client.host
-    answer = ai.ask(prompt)
+    answer_ai = ai.ask(prompt)
     add_request_data(
         ip_address=user_ip_address,
         prompt=prompt,
-        response=answer,
+        response=answer_ai,
     )
-    return {"answer": answer}
+    return {"answer": answer_ai}
