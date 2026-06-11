@@ -14,7 +14,6 @@ templates = Jinja2Templates(directory="templates")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(engine)
-    print("Все таблицы созданы")
     yield
 
 
@@ -28,8 +27,11 @@ app.include_router(main_router)
 @app.get("/")
 async def index(request: Request):
     return templates.TemplateResponse(
-        "index.html",
-        {"request": request},
+        request=request,
+        name="index.html",
+        context={
+            "title": "JARVIS",
+        }
     )
 
 

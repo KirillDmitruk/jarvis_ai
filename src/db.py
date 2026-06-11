@@ -1,14 +1,11 @@
 from sqlalchemy import create_engine, select
-from sqlalchemy.orm import sessionmaker, DeclarativeBase
+from sqlalchemy.orm import sessionmaker
 
 from src.models.models import ChatRequests
 
 engine = create_engine(url='sqlite:///jarvis.db')
 
 session = sessionmaker(engine)
-
-
-
 
 
 def get_user_requests(ip_address: str) -> list[ChatRequests]:

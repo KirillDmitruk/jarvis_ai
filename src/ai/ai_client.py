@@ -1,4 +1,3 @@
-from http import HTTPStatus
 from typing import List
 
 from google import genai
@@ -7,6 +6,7 @@ from google.genai.errors import ClientError
 from config import config_obj
 
 client = genai.Client(api_key=config_obj.gemini_api_key)
+print(f'API KEY = {config_obj.gemini_api_key}')
 
 SYSTEM_PROMPT = """
     Ты — J.A.R.V.I.S, высокотехнологичный AI ассистент Тони Старка.
@@ -40,7 +40,7 @@ class AIClient:
                 {user_prompt}
                 """
 
-    def ask(self, prompt: str) -> str:
+    def ask(self, prompt: str):
         try:
             full_prompt = self._build_prompt(prompt)
 
@@ -56,12 +56,17 @@ class AIClient:
             self.history.append(f"JARVIS: {answer}")
 
             return answer
+
         except ClientError as e:
-            if e.status == HTTPStatus.TOO_MANY_REQUESTS:
-                return (
-                    "⚠️ Сэр, лимит запросов временно исчерпан.\n"
-                    "Рекомендую подождать или переключиться на резервный интеллект."
-                )
+            print(f'Ошибка: {e}')
+            print(f'Тип: {type(e)}')
+            print(f'Diiiiir: {dir(e)}')
+            print(f'Varssssss: {vars(e)}')
+
+            if e.status == 'INVALID_ARGUMENT':
+                return 'Ошибка с Gemini'
+
+
 
     def ask_stream(self, prompt: str):
         full_prompt = self._build_prompt(prompt)
