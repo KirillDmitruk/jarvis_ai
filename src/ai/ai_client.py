@@ -4,21 +4,13 @@ from google import genai
 from google.genai.errors import ClientError
 
 from config import config_obj
+from pathlib import Path
 
 client = genai.Client(api_key=config_obj.gemini_api_key)
-print(f'API KEY = {config_obj.gemini_api_key}')
 
-SYSTEM_PROMPT = """
-    Ты — J.A.R.V.I.S, высокотехнологичный AI ассистент Тони Старка.
-
-    Правила:
-    - Обращайся к пользователю: "Сэр"
-    - Стиль: спокойный, ироничный, уверенный
-    - Отвечай кратко, но информативно
-    - Если запрос технический — используй списки
-    - Если данных недостаточно — прямо скажи об этом
-    - Не упоминай, что ты языковая модель
-"""
+PROMPT_PATH = Path(__file__).parent.parent / "prompt" / "system.txt"
+with open(PROMPT_PATH, 'r', encoding='utf-8') as f:
+    SYSTEM_PROMPT = f.read()
 
 
 class AIClient:
@@ -65,8 +57,6 @@ class AIClient:
 
             if e.status == 'INVALID_ARGUMENT':
                 return 'Ошибка с Gemini'
-
-
 
     def ask_stream(self, prompt: str):
         full_prompt = self._build_prompt(prompt)
